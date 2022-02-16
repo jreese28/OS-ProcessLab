@@ -1,5 +1,6 @@
 #include  <stdio.h>
 #include  <sys/types.h>
+#include <stdlib.h>
 
 #define   MAX_COUNT  200
 
@@ -8,29 +9,49 @@ void  ParentProcess(void);               /* parent process prototype */
 
 void  main(void)
 {
-     pid_t  pid;
+     pid_t  pid[MAX_COUNT];
+     int i;
 
-     pid = fork();
-     if (pid == 0) 
-          ChildProcess();
-     else 
-          ParentProcess();
+     for(i = 0 ; i < MAX_COUNT ; i++){
+       pid[i] = fork();
+
+       switch(pid[i]){
+         case 0:
+         ChildProcess();
+         wait();
+         break;
+
+         case 1:
+         break;
+
+         default:
+         ParentProcess();
+         break;
+       };
+     };
+
 }
 
 void  ChildProcess(void)
 {
-     int   i;
+  int   i;
 
-     for (i = 1; i <= MAX_COUNT; i++)
-          printf("   This line is from child, value = %d\n", i);
-     printf("   *** Child process is done ***\n");
+  time_t t;
+  srand((unsigned) time(&t));
+
+  for(i = 1; i <= (rand() % 31) ; i++){
+    printf("Child pid: %d is going to sleep.\n", getpid());
+    sleep(rand() % 11);
+    printf("Child pid: %d is awake.\n Where is my parent: %d\n", getpid(), getppid());
+  }
+  exit(0);
 }
 
 void  ParentProcess(void)
 {
      int   i;
+     int status;
 
-     for (i = 1; i <= MAX_COUNT; i++)
-          printf("This line is from parent, value = %d\n", i);
-     printf("*** Parent is done ***\n");
+     wait(&status);
+     printf("Child pid: %d is done.\n", status);
 }

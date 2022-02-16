@@ -2,45 +2,37 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <time.h>
 
-void handler(int);
-void handler2(int);
-int alarmTrigger = 0;
 int alarmNum = 0;
-
-time_t start, stop;
+time_t start;
+time_t end;
 
 void handler(int signum){
-    alarmTrigger = 1;
-    printf("Hello World!\n");
-    alarmNum++;
-    sleep(2);
-
-//exit after printing
+  alarmNum += 1;
+  printf("Hello world!\n");
+  alarm(1);
 }
 
-void handler2(int signum){
-    int totalTime;
-    stop = time(NULL);
-    totalTime = stop - start;
-    printf("Number of alarms: %d \n", alarmNum);
-    printf("Total time: %d \n", totalTime, " seconds.");
+void handlerTwo(int signum){
+  time_t runtime;
+  end = time(NULL);
+  runtime = end - start;
+
+  printf("Number of alarms: %d", alarmNum);
+  printf("\nRuntime: %d \n", (int)runtime);
+  exit(0);
 }
 
-int maint(int argc, char * argv[]){
-    start = time(NULL);
-    
-    signal(SIGALRM, handler);
-    signal(SIGINT, handler2);
+int main(int argc, char *argv[]){
+  start = time(NULL);
+  signal(SIGALRM, handler);
+  signal(SIGINT, handlerTwo);
+  alarm(1);
 
-    //register handler to SIGALRM
-
-    while(1){
-        alarmTrigger = 0;
-        alarm(2);
-        while(alarmTrigger == 0){
-            printf("Turning was right!\n");
-        }
-        return 0;
-    }
+  while(alarm(1)){
+    pause();
+    printf("Turing was right!\n");
+  }
+  return 0;
 }

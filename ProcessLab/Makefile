@@ -3,3 +3,6 @@ prog1: main.c
 
 prog2: main2.c
 	gcc main2.c -o prog2
+
+clean:
+	rm all
